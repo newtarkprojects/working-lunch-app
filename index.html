@@ -359,13 +359,32 @@ const appContainer = document.getElementById('app');
 function renderDashboard() {
     const currentDate = new Date(); 
     
-    // Build the Hero Header
+    // 1. Check the URL for the secret tag
+    const urlParams = new URLSearchParams(window.location.search);
+    const isMysteryScan = urlParams.get('source') === 'mystery';
+
+    // 2. Build the Reveal Box (Only if the tag is present)
+    let revealBoxHtml = '';
+    if (isMysteryScan) {
+        revealBoxHtml = `
+        <div class="interactive-section" style="background-color: rgba(255, 0, 127, 0.1); border-left: 4px solid #ff007f; padding: 15px; margin-bottom: 20px;">
+            <p style="font-size: 0.95rem; line-height: 1.5;">
+                <strong>You scanned the flyer. So, who got you the weekend?</strong><br>
+                Spoiler: It wasn't the bosses. It was young trade unionists fighting for their rights. Welcome to the Working Lunch series—a pressure-free, informal space to find out how everyday people changed history, and how you can shape your own workplace today.
+            </p>
+        </div>
+        `;
+    }
+
+    // 3. Build the rest of the Dashboard
     let html = `
         <div class="hero-header">
             <p class="text-muted" style="margin-bottom: 5px; font-size: 0.8rem; text-transform: uppercase;">Presented by Gem Newton</p>
             <h1>The Working Lunch</h1>
-            <p>A 4-Week Bite-Sized History of Your Workplace Rights</p>
+            <p style="color: #ffd700; font-weight: bold; margin-top: 5px;">A 4-Week Bite-Sized History of Your Workplace Rights</p>
         </div>
+
+        ${revealBoxHtml}
 
         <div class="interactive-section" style="border: 1px solid #00f0ff; background-color: rgba(0, 240, 255, 0.05); padding: 15px;">
             <h3 style="color: #00f0ff; margin-bottom: 12px; font-size: 1.2rem;">The Details</h3>
@@ -415,7 +434,6 @@ function renderDashboard() {
             ? `onclick="renderWeekView('${key}')"` 
             : `onclick="showLockedMessage('${data.unlockDate.toLocaleDateString('en-GB', {weekday: 'long', day: 'numeric', month: 'long'})}')"`;
 
-        // NEW: Injecting the breakdown into the card layout
         html += `
             <div class="week-card ${statusClass}" ${clickAction}>
                 ${badgeHtml}
