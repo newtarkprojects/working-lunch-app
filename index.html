@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Working Lunch Series</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+/* --- Global Reset & Theme --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    /* NEW: The Background Image with a Dark Navy Overlay */
+    background-color: #0b132b; 
+    background-image: 
+        linear-gradient(rgba(11, 19, 43, 0.88), rgba(11, 19, 43, 0.95)), 
+        url('bg.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Keeps the image still while you scroll */
+    
+    color: #f4f6f9; 
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.5;
+    padding: 15px 15px 90px 15px; 
+    display: flex;
+    justify-content: center;
+}
+
+#app {
+    width: 100%;
+    max-width: 500px; 
+}
+
+/* --- Typography & Utilities --- */
+h1, h2, h3 {
+    font-family: 'Fredoka', sans-serif; /* NEW: Applies the friendly rounded font */
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.text-muted {
+    color: #8da9c4;
+}
+
+/* --- Hero Header --- */
+.hero-header {
+    text-align: center;
+    padding: 25px 15px;
+    margin-bottom: 20px;
+    background: linear-gradient(145deg, #1c2541, #111a36);
+    border-radius: 16px;
+    border-bottom: 4px solid #00f0ff; /* PCS Cyan Accent Hit */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.hero-header h1 {
+    font-size: 1.8rem;
+    color: #ffffff;
+    text-transform: uppercase;
+}
+
+.hero-header p {
+    font-size: 0.95rem;
+    margin-top: 5px;
+}
+
+/* --- Dashboard & Schedule Cards --- */
+.schedule-grid {
+    display: grid;
+    gap: 15px;
+}
+
+.week-card {
+    background-color: #1c2541;
+    border: 2px solid #3a506b;
+    border-radius: 12px;
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+    position: relative;
+}
+
+.week-card:active {
+    transform: scale(0.98);
+}
+
+.week-card.unlocked {
+    border-color: #ff007f; /* PCS Magenta highlight for ready weeks */
+}
+
+.week-card.locked {
+    opacity: 0.6;
+    border-color: #2a3554;
+}
+
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.badge.magenta { background-color: #ff007f; color: #fff; }
+.badge.locked-bg { background-color: #576475; color: #d1d5db; }
+
+.lock-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.2rem;
+}
+
+/* --- Buttons & Action Elements --- */
+.btn {
+    display: inline-block;
+    width: 100%;
+    padding: 12px;
+    background-color: #3a506b;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    margin-top: 15px;
+}
+
+.btn-back {
+    background-color: transparent;
+    color: #8da9c4;
+    border: 1px solid #3a506b;
+    margin-bottom: 15px;
+    width: auto;
+    padding: 6px 15px;
+}
+
+.btn-yellow {
+    background-color: #ffd700; /* PCS Yellow Accent for big actions */
+    color: #0b132b;
+}
+
+/* --- Interaction Blocks (Quiz & Timeline) --- */
+.interactive-section {
+    background-color: #1c2541;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.quiz-option {
+    background-color: #111a36;
+    border: 1px solid #3a506b;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.quiz-option.correct {
+    background-color: rgba(46, 204, 113, 0.2);
+    border-color: #2ecc71;
+}
+
+.quiz-option.incorrect {
+    background-color: rgba(231, 76, 60, 0.2);
+    border-color: #e74c3c;
+}
+
+/* Tap Timeline Items */
+.timeline-bucket {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.timeline-item {
+    background-color: #111a36;
+    border: 1px solid #3a506b;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.timeline-item .tap-number {
+    background-color: #ff007f;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+/* --- Persistent Global Footer --- */
+#global-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #0b132b;
+    border-top: 2px solid #1c2541;
+    padding: 12px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    z-index: 100;
+}
+
+.footer-btn {
+    flex: 1;
+    max-width: 240px;
+    padding: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.footer-btn.magenta { background-color: #ff007f; color: white; }
+.footer-btn.cyan { background-color: #00f0ff; color: #0b132b; }
+    </style>
+</head>
+<body>
+
+    <!-- The App Container -->
+    <div id="app">
+        <!-- Dashboard and Weekly Views will be injected here by JS -->
+    </div>
+
+    <!-- Persistent Global Footer -->
+    <footer id="global-footer">
+        <a href="#" target="_blank" class="footer-btn magenta">Join PCS Online</a>
+        <a href="#" target="_blank" class="footer-btn cyan">Register: Youth Officer Training</a>
+    </footer>
+
+    <script>
+        // The Data Structure
+        const appData = {
+            week1: {
+                title: "The Foundations of Everyday Life",
+				breakdown: "Think the weekend is a given? Think again. We explore how young workers fought for the two-day weekend, the 8-hour shift, and paid holidays so your time off is actually yours.",
+                unlockDate: new Date("2026-06-02T00:00:00"), // Tuesday 2nd June 2026
+                quiz: [
+                    { q: "Before trade unions campaigned for the modern weekend, how many days a week did the average person work?", options: ["4 Days", "5 Days", "6 Days"], correct: 2 },
+                    { q: "The modern standard workday was built on a famous workers' slogan demanding eight hours for rest, eight hours for work, and eight hours for what?", options: ["Recreation", "Family", "Travel"], correct: 0 },
+                    { q: "In what decade did trade unions successfully push the government to introduce paid holidays for everyday workers?", options: ["1880s", "1930s", "1970s"], correct: 1 }
+                ],
+                timeline: [
+                    "The slogan '8 Hours Labour, 8 Hours Rest' is coined (1817)",
+                    "The two-day weekend becomes a standard goal for unions (1930s)",
+                    "The Holidays with Pay Act becomes law (1938)"
+                ]
+            },
+            week2: {
+                title: "The Fight for Equality",
+				breakdown: "Equal pay and fair treatment weren't handed out voluntarily. Discover how young women—from Victorian factories to the Ford Dagenham lines—fundamentally rewrote employment law for everyone.",
+                unlockDate: new Date("2026-06-11T00:00:00"), // Thursday 11th June 2026
+                quiz: [
+                    { q: "Which famous 1888 strike, led mostly by teenage girls, proved that young, unorganised workers could defeat massive corporations?", options: ["The Matchgirls' Strike", "The Miners' Strike", "The Cotton Mills Strike"], correct: 0 },
+                    { q: "The 1968 strike by women sewing car seats at the Ford Dagenham plant directly led to the government passing which historic law?", options: ["The Minimum Wage Act", "The Equal Pay Act", "The Health and Safety Act"], correct: 1 },
+                    { q: "Trade unions fought for decades to make it illegal to sack someone for their race, sexuality, or pregnancy. What is this consolidated legislation called today?", options: ["The Workers' Rights Act", "The Fairness in Work Act", "The Equality Act"], correct: 2 }
+                ],
+                timeline: [
+                    "Teenage girls win the Matchgirls' Strike (1888)",
+                    "Ford Dagenham workers strike for equal pay (1968)",
+                    "The Equality Act becomes law (2010)"
+                ]
+            },
+            week3: {
+                title: "Health, Safety & The Workplace",
+				breakdown: "From fighting screen fatigue to winning the legal right to step away from unsafe situations. We look at how unions force employers to take both physical hazards and mental burnout seriously.",
+                unlockDate: new Date("2026-06-18T00:00:00"), // Thursday 18th June 2026
+                quiz: [
+                    { q: "Which revolutionary 1974 law, campaigned for by unions, finally made employers legally responsible for keeping their staff safe?", options: ["The Workers' Compensation Act", "The Health and Safety at Work Act", "The Safe Office Act"], correct: 1 },
+                    { q: "Thanks to union campaigning, if you are faced with 'serious and imminent danger' at work, the law gives you the right to do what?", options: ["Ask for double pay", "Call the police immediately", "Stop work and remove yourself without being disciplined"], correct: 2 },
+                    { q: "While physical safety is important, what is the biggest modern health and safety issue that unions are fighting for today?", options: ["Better canteen food", "Commuter travel times", "Mental health, burnout, and stress"], correct: 2 }
+                ],
+                timeline: [
+                    "Workplaces have virtually no safety laws, and injuries are the worker's fault (19th Century)",
+                    "The Health and Safety at Work Act is passed (1974)",
+                    "Unions begin major modern campaigns for the 'Right to Disconnect' and psychological safety (2020s)"
+                ]
+            },
+			week4: {
+                title: "The Civil Service Story & Your Voice",
+				breakdown: 'How did civil servants go from polite "servants" to a united force? We look at the young "Boy Clerks" who demanded real careers, the birth of PCS, and how you can use the modern "Advocate" role to get a powerful say in the office.',
+                unlockDate: new Date("2026-06-25T00:00:00"), // Thursday 25th June 2026
+                quiz: [
+                    { q: "In the early days, civil servants didn't have unions. What were their polite, powerless groups called?", options: ["Crown Committees", "Staff Associations", "Government Clubs"], correct: 1 },
+                    { q: "What does PCS actually stand for?", options: ["Public and Commercial Services Union", "Professional Civil Servants", "Public Crown Staff"], correct: 0 },
+                    { q: "If you want official training, paid time off to help colleagues, and a way to boost your career competencies, what should you do in July?", options: ["Wait for management to promote you", "Sign up for the PCS Youth Officer training", "Write a letter to the Prime Minister"], correct: 1 }
+                ],
+                timeline: [
+                    "Civil servants realise polite requests don't work and start forming real unions.",
+                    "Separate grade unions merge to form the massive, united PCS (1998).",
+                    "YOU step up to take the Youth Officer training (July 2026)."
+                ]
+            }
+        };
+
+        // Form placeholder
+        const formsLink = "#";
+        
+        console.log("App data loaded successfully.");
+		
+// --- Core App Variables ---
+const appContainer = document.getElementById('app');
+
+// --- View: Main Dashboard ---
+function renderDashboard() {
+    const currentDate = new Date(); 
+    
+    // Build the Hero Header
+    let html = `
+        <div class="hero-header">
+            <p class="text-muted" style="margin-bottom: 5px; font-size: 0.8rem; text-transform: uppercase;">Presented by Gem Newton</p>
+            <h1>The Working Lunch</h1>
+            <p>A 4-Week Bite-Sized History of Your Workplace Rights</p>
+        </div>
+
+        <div class="interactive-section" style="border: 1px solid #00f0ff; background-color: rgba(0, 240, 255, 0.05); padding: 15px;">
+            <h3 style="color: #00f0ff; margin-bottom: 12px; font-size: 1.2rem;">The Details</h3>
+            
+            <p style="font-size: 0.9rem; margin-bottom: 10px;">
+                <strong>👥 Who:</strong> Specially designed for young workers aged 27 and under, but absolutely anyone is welcome to attend—whether you are currently a union member or not!
+            </p>
+            
+            <p style="font-size: 0.9rem; margin-bottom: 10px;">
+                <strong>🥪 The Vibe:</strong> Completely informal. Bring your lunch, take a breather away from the screens, and enjoy a quick bit of history.
+            </p>
+            
+            <div style="font-size: 0.9rem;">
+                <strong style="display: block; margin-bottom: 5px;">📅 When & Where:</strong>
+                
+                <p style="color: #ff007f; font-weight: bold; margin-top: 8px;">Week 1:</p>
+                <ul style="margin-left: 20px; color: #f4f6f9; line-height: 1.4;">
+                    <li><strong>Tuesday 2nd June:</strong> In-person floor 7 canteen area, Crown House</li>
+                    <li><strong>Wednesday 3rd June:</strong> On Teams</li>
+                    <li><strong>Thursday 4th June:</strong> On Teams</li>
+                </ul>
+
+                <p style="color: #ff007f; font-weight: bold; margin-top: 12px;">Weeks 2, 3 & 4:</p>
+                <ul style="margin-left: 20px; color: #f4f6f9; line-height: 1.4;">
+                    <li><strong>Every Wednesday:</strong> In-person floor 7 canteen area, Crown House</li>
+                    <li><strong>Every Thursday:</strong> On Teams. <br><em style="color: #00f0ff;">(Contact us via your DWP device if you need the link!)</em></li>
+                </ul>
+            </div>
+        </div>
+
+        <h3 style="margin: 20px 0 10px 0; font-size: 1.2rem;">The Learning Schedule</h3>
+        <div class="schedule-grid">
+    `;
+
+    // Loop through our appData to build the Week Cards
+    for (const [key, data] of Object.entries(appData)) {
+        const isUnlocked = currentDate >= data.unlockDate; 
+        const statusClass = isUnlocked ? 'unlocked' : 'locked';
+        
+        const badgeHtml = isUnlocked 
+            ? `<span class="badge magenta">Available</span>` 
+            : `<span class="badge locked-bg">Unlocks ${data.unlockDate.toLocaleDateString('en-GB', {day: 'numeric', month: 'short'})}</span>`;
+        
+        const iconHtml = isUnlocked ? '' : `<span class="lock-icon">🔒</span>`;
+        
+        const clickAction = isUnlocked 
+            ? `onclick="renderWeekView('${key}')"` 
+            : `onclick="showLockedMessage('${data.unlockDate.toLocaleDateString('en-GB', {weekday: 'long', day: 'numeric', month: 'long'})}')"`;
+
+        // NEW: Injecting the breakdown into the card layout
+        html += `
+            <div class="week-card ${statusClass}" ${clickAction}>
+                ${badgeHtml}
+                ${iconHtml}
+                <h3 style="margin-top: 5px; font-size: 1.1rem;">Week ${key.replace('week', '')}: ${data.title}</h3>
+                <p class="text-muted" style="font-size: 0.85rem; margin-top: 8px; line-height: 1.4;">
+                    ${data.breakdown}
+                </p>
+            </div>
+        `;
+    }
+
+    html += `</div>`;
+    appContainer.innerHTML = html;
+}
+
+// --- Helper: Locked Message ---
+function showLockedMessage(dateString) {
+    // A simple, native alert for locked weeks
+    alert(`🔒 This episode is currently locked. Check back on ${dateString}!`);
+}
+
+// --- Active State Variables ---
+// These track the user's progress while they are inside a specific week
+let currentTimelineOrder = [];
+let currentTimelineItems = [];
+
+// --- View: Weekly Content (Fully Active & Reordered) ---
+function renderWeekView(weekKey) {
+    const data = appData[weekKey];
+    
+    // 1. Reset the timeline state for the new week
+    currentTimelineOrder = [];
+    
+    // 2. Load and shuffle the timeline items for the game
+    // We store the 'originalIndex' so we know what the correct chronological order is
+    currentTimelineItems = data.timeline.map((text, index) => ({ text, originalIndex: index }));
+    currentTimelineItems.sort(() => Math.random() - 0.5); // A lightweight array shuffle
+
+    // 3. Build the core page layout
+    let html = `
+        <button class="btn-back" onclick="renderDashboard()">← Back to Schedule</button>
+        
+        <div class="hero-header" style="border-bottom-color: #00f0ff;">
+            <p class="text-muted">Week ${weekKey.replace('week', '')}</p>
+            <h1 style="font-size: 1.5rem;">${data.title}</h1>
+        </div>
+
+        <div id="quiz-container" class="interactive-section"></div>
+
+        <div id="timeline-container" class="interactive-section"></div>
+
+        <div class="interactive-section" style="border: 2px solid #ff007f;">
+            <h3 style="margin-bottom: 15px;">Feedback & Freebies 🎁</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 15px;">Let us know what you thought of this session to claim your free merch at the canteen!</p>
+            <a href="${formsLink}" target="_blank" class="btn btn-yellow">Give Feedback</a>
+        </div>
+    `;
+
+    appContainer.innerHTML = html;
+
+    // 4. Inject the interactive components into their containers
+    renderQuiz(weekKey);
+    renderTimeline();
+}
+
+// --- Component: The Knowledge Check ---
+function renderQuiz(weekKey) {
+    const data = appData[weekKey];
+    const container = document.getElementById('quiz-container');
+
+    let html = `
+        <h3>Knowledge Check</h3>
+        <p class="text-muted" style="margin-bottom: 15px;">Tap the correct answers below:</p>
+    `;
+
+    // Loop through the questions in our data object
+    data.quiz.forEach((qObj, qIndex) => {
+        html += `
+            <div style="margin-bottom: 25px;">
+                <p style="font-weight: 600; margin-bottom: 10px;">${qIndex + 1}. ${qObj.q}</p>
+                <div id="q-${qIndex}-options">
+        `;
+
+        // Generate a button for each option
+        qObj.options.forEach((opt, optIndex) => {
+            html += `<div class="quiz-option" onclick="checkAnswer('${weekKey}', ${qIndex}, ${optIndex}, this)">${opt}</div>`;
+        });
+
+        html += `</div></div>`;
+    });
+
+    container.innerHTML = html;
+}
+
+// Logic for tapping a quiz answer
+function checkAnswer(weekKey, qIndex, selectedIndex, element) {
+    const data = appData[weekKey];
+    const correctIndex = data.quiz[qIndex].correct;
+    const parent = document.getElementById(`q-${qIndex}-options`);
+    const options = parent.getElementsByClassName('quiz-option');
+
+    // Disable all options for this specific question once an answer is tapped
+    for (let opt of options) {
+        opt.onclick = null;
+        opt.style.cursor = 'default';
+    }
+
+    // Check if they got it right and apply the relevant CSS classes
+    if (selectedIndex === correctIndex) {
+        element.classList.add('correct');
+    } else {
+        element.classList.add('incorrect');
+        // If wrong, highlight the correct one automatically so they still learn the fact
+        options[correctIndex].classList.add('correct');
+    }
+}
+
+// --- Component: The Timeline Mini-Game ---
+function renderTimeline() {
+    const container = document.getElementById('timeline-container');
+
+    let html = `
+        <h3>Timeline Challenge</h3>
+        <p class="text-muted" style="margin-bottom: 15px;">Tap the events in the exact chronological order they happened:</p>
+        <div class="timeline-bucket">
+    `;
+
+    // Loop through our shuffled items
+    currentTimelineItems.forEach((item) => {
+        // Check if this item has been tapped yet
+        const tapPosition = currentTimelineOrder.indexOf(item.originalIndex);
+        
+        // If tapped, show the number (1, 2, or 3). If not, keep it empty.
+        const tapNumberHtml = tapPosition > -1 
+            ? `<div class="tap-number">${tapPosition + 1}</div>` 
+            : `<div style="width: 24px; height: 24px;"></div>`;
+
+        // Determine if the game is finished and won
+        const isFinished = currentTimelineOrder.length === 3 && checkTimelineWin();
+        
+        // Only allow clicking if it hasn't been tapped yet AND the game isn't over
+        const clickAction = (tapPosition === -1 && !isFinished) ? `onclick="handleTimelineTap(${item.originalIndex})"` : '';
+        const opacity = (tapPosition > -1) ? '0.6' : '1';
+
+        html += `
+            <div class="timeline-item" style="opacity: ${opacity};" ${clickAction}>
+                <span style="font-size: 0.9rem; padding-right: 10px;">${item.text}</span>
+                ${tapNumberHtml}
+            </div>
+        `;
+    });
+
+    html += `</div>`;
+
+    // If they have tapped all three, check the result
+    if (currentTimelineOrder.length === 3) {
+        if (checkTimelineWin()) {
+            // Success State
+            html += `
+                <div style="margin-top: 20px; padding: 15px; background-color: rgba(46, 204, 113, 0.15); border: 2px solid #2ecc71; border-radius: 8px; text-align: center;">
+                    <h4 style="color: #2ecc71; margin-bottom: 5px;">🎉 Digital Badge Unlocked!</h4>
+                    <p style="font-size: 0.85rem;">You nailed the timeline. Don't forget to grab your free merch at the canteen!</p>
+                </div>`;
+        } else {
+            // Fail State
+             html += `
+                <div style="margin-top: 15px; text-align: center;">
+                    <p style="color: #e74c3c; font-size: 0.9rem; margin-bottom: 10px;">Not quite the right chronological order!</p>
+                    <button class="btn-back" style="color: #f4f6f9; border-color: #e74c3c;" onclick="resetTimeline()">Try Again</button>
+                </div>`;
+        }
+    }
+
+    container.innerHTML = html;
+}
+
+// Logic for tapping a timeline item
+function handleTimelineTap(originalIndex) {
+    currentTimelineOrder.push(originalIndex);
+    renderTimeline(); // Re-render the timeline to show the new tap numbers
+}
+
+// Check if the order matches [0, 1, 2]
+function checkTimelineWin() {
+    return currentTimelineOrder[0] === 0 && currentTimelineOrder[1] === 1 && currentTimelineOrder[2] === 2;
+}
+
+// Reset the game if they get it wrong
+function resetTimeline() {
+    currentTimelineOrder = [];
+    renderTimeline();
+}
+
+// --- Initialize App ---
+// This runs automatically when the page loads
+renderDashboard();
+    </script>
+</body>
+</html>
