@@ -242,10 +242,35 @@ h1, h2, h3 {
 
 .footer-btn.magenta { background-color: #ff007f; color: white; }
 .footer-btn.cyan { background-color: #00f0ff; color: #0b132b; }
+
+/* --- Custom Toast Notification --- */
+#custom-toast {
+    position: fixed;
+    top: -100px; /* Hidden off-screen initially */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #111a36;
+    border: 2px solid #00f0ff; /* Cyan accent */
+    color: #f4f6f9;
+    padding: 15px 20px;
+    border-radius: 8px;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    font-weight: 600;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    transition: top 0.4s ease-in-out; /* Smooth sliding animation */
+    font-family: 'Fredoka', sans-serif;
+}
+
+#custom-toast.show {
+    top: 20px; /* Slides down into view */
+}
     </style>
 </head>
 <body>
-
+	<div id="custom-toast"></div>
     <!-- The App Container -->
     <div id="app">
         <!-- Dashboard and Weekly Views will be injected here by JS -->
@@ -408,9 +433,20 @@ function renderDashboard() {
 }
 
 // --- Helper: Locked Message ---
+// --- Helper: Custom Locked Message (Toast) ---
 function showLockedMessage(dateString) {
-    // A simple, native alert for locked weeks
-    alert(`🔒 This episode is currently locked. Check back on ${dateString}!`);
+    const toast = document.getElementById('custom-toast');
+    
+    // Set the text
+    toast.innerHTML = `🔒 This episode is locked. <br><span style="font-size: 0.85rem; font-weight: normal; color: #8da9c4;">Check back on ${dateString}!</span>`;
+    
+    // Slide it down
+    toast.classList.add('show');
+    
+    // Remove it after 3.5 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3500);
 }
 
 // --- Active State Variables ---
